@@ -1,0 +1,30 @@
+build/py/scope.o: ../py/scope.c /usr/include/assert.h \
+ /usr/include/_ansi.h /usr/include/newlib.h \
+ /usr/include/_newlib_version.h /usr/include/sys/config.h \
+ /usr/include/machine/ieeefp.h /usr/include/sys/features.h \
+ /usr/include/cygwin/config.h ../py/scope.h ../py/parse.h \
+ /usr/lib/gcc/i686-pc-cygwin/6.4.0/include/stddef.h \
+ /usr/lib/gcc/i686-pc-cygwin/6.4.0/include/stdint.h /usr/include/stdint.h \
+ /usr/include/machine/_default_types.h /usr/include/sys/_intsup.h \
+ /usr/include/sys/_stdint.h ../py/obj.h ../py/mpconfig.h mpconfigport.h \
+ /usr/include/alloca.h /usr/include/sys/reent.h /usr/include/_ansi.h \
+ /usr/include/sys/_types.h /usr/include/machine/_types.h \
+ /usr/include/sys/lock.h ../py/misc.h \
+ /usr/lib/gcc/i686-pc-cygwin/6.4.0/include/stdbool.h ../py/qstr.h \
+ build/genhdr/qstrdefs.generated.h ../py/mpprint.h ../py/runtime0.h \
+ ../py/emitglue.h
+../py/scope.c /usr/include/assert.h :
+ /usr/include/_ansi.h /usr/include/newlib.h :
+ /usr/include/_newlib_version.h /usr/include/sys/config.h :
+ /usr/include/machine/ieeefp.h /usr/include/sys/features.h :
+ /usr/include/cygwin/config.h ../py/scope.h ../py/parse.h :
+ /usr/lib/gcc/i686-pc-cygwin/6.4.0/include/stddef.h :
+ /usr/lib/gcc/i686-pc-cygwin/6.4.0/include/stdint.h /usr/include/stdint.h :
+ /usr/include/machine/_default_types.h /usr/include/sys/_intsup.h :
+ /usr/include/sys/_stdint.h ../py/obj.h ../py/mpconfig.h mpconfigport.h :
+ /usr/include/alloca.h /usr/include/sys/reent.h /usr/include/_ansi.h :
+ /usr/include/sys/_types.h /usr/include/machine/_types.h :
+ /usr/include/sys/lock.h ../py/misc.h :
+ /usr/lib/gcc/i686-pc-cygwin/6.4.0/include/stdbool.h ../py/qstr.h :
+ build/genhdr/qstrdefs.generated.h ../py/mpprint.h ../py/runtime0.h :
+ ../py/emitglue.h :

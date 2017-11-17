@@ -68,7 +68,7 @@ static const flash_layout_t flash_layout[] = {
     { (uint32_t)FLASH_BASE, (uint32_t)FLASH_PAGE_SIZE, 512 },
 };
 
-// #elif defined(MCU_SERIES_F1)
+#elif defined(MCU_SERIES_F1)
 // TODO STM32F1
 
 #else

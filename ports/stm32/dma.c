@@ -53,7 +53,7 @@ typedef enum {
 } dma_id_t;
 
 typedef struct _dma_descr_t {
-    #if defined(MCU_SERIES_F4) || defined(MCU_SERIES_F7)
+    #if defined(MCU_SERIES_F4) || defined(MCU_SERIES_F7) || defined(MCU_SERIES_F1)
     DMA_Stream_TypeDef *instance;
     #elif defined(MCU_SERIES_L4)
     DMA_Channel_TypeDef *instance;

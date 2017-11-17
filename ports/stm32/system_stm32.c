@@ -107,7 +107,7 @@ void __fatal_error(const char *msg);
   * @{
   */
 
-#if defined(MCU_SERIES_F4) || defined(MCU_SERIES_F7)
+#if defined(MCU_SERIES_F4) || defined(MCU_SERIES_F7) || defined(MCU_SERIES_F1)
 
 #define CONFIG_RCC_CR_1ST (RCC_CR_HSION)
 #define CONFIG_RCC_CR_2ND (RCC_CR_HSEON || RCC_CR_CSSON || RCC_CR_PLLON)

@@ -58,8 +58,9 @@ PCD_HandleTypeDef pcd_hs_handle;
   */
 void HAL_PCD_MspInit(PCD_HandleTypeDef *hpcd)
 {
+#if defined(USB_OTG_FS) 
   GPIO_InitTypeDef  GPIO_InitStruct;
-  
+
   if(hpcd->Instance == USB_OTG_FS)
   {
     /* Configure USB FS GPIOs */
@@ -113,6 +114,7 @@ void HAL_PCD_MspInit(PCD_HandleTypeDef *hpcd)
     /* Enable USBFS Interrupt */
     HAL_NVIC_EnableIRQ(OTG_FS_IRQn);
   } 
+#endif
 #if defined(USE_USB_HS)
   else if(hpcd->Instance == USB_OTG_HS)
   {
@@ -231,12 +233,14 @@ void HAL_PCD_MspInit(PCD_HandleTypeDef *hpcd)
   */
 void HAL_PCD_MspDeInit(PCD_HandleTypeDef *hpcd)
 {
+#if defined(USB_OTG_FS)
   if(hpcd->Instance == USB_OTG_FS)
   {  
     /* Disable USB FS Clocks */ 
     __USB_OTG_FS_CLK_DISABLE();
     __SYSCFG_CLK_DISABLE(); 
   }
+#endif
   #if defined(USE_USB_HS)
   else if(hpcd->Instance == USB_OTG_HS)
   {  
@@ -401,7 +405,7 @@ void HAL_PCD_DisconnectCallback(PCD_HandleTypeDef *hpcd)
   */
 USBD_StatusTypeDef  USBD_LL_Init (USBD_HandleTypeDef *pdev)
 { 
-#if defined(USE_USB_FS)
+#if defined(USE_USB_FS) && defined(USB_OTG_FS)
 if (pdev->id ==  USB_PHY_FS_ID)
 {
   /*Set LL Driver parameters */

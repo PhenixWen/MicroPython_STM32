@@ -218,8 +218,9 @@ void SystemInit(void)
   RCC->CR &= ~ CONFIG_RCC_CR_2ND;
 
   /* Reset PLLCFGR register */
+  #if defined(MCU_SERIES_F4) || defined(MCU_SERIES_F7)
   RCC->PLLCFGR = CONFIG_RCC_PLLCFGR;
-
+  #endif
   /* Reset HSEBYP bit */
   RCC->CR &= (uint32_t)0xFFFBFFFF;
 
@@ -401,16 +402,18 @@ void SystemClock_Config(void)
     RCC_ClkInitStruct.APB1CLKDivider = b1; //RCC_HCLK_DIV4;
     RCC_ClkInitStruct.APB2CLKDivider = b2; //RCC_HCLK_DIV2;
 #else // defined(MICROPY_HW_CLK_LAST_FREQ) && MICROPY_HW_CLK_LAST_FREQ
+    #if defined(MCU_SERIES_F4) || defined(MCU_SERIES_F7) || defined(MCU_SERIES_L4)
     RCC_OscInitStruct.PLL.PLLM = MICROPY_HW_CLK_PLLM;
     RCC_OscInitStruct.PLL.PLLN = MICROPY_HW_CLK_PLLN;
     RCC_OscInitStruct.PLL.PLLP = MICROPY_HW_CLK_PLLP;
     RCC_OscInitStruct.PLL.PLLQ = MICROPY_HW_CLK_PLLQ;
+	#endif
     #if defined(MCU_SERIES_L4)
     RCC_OscInitStruct.PLL.PLLR = MICROPY_HW_CLK_PLLR;
     #endif
 
     RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
-    #if defined(MCU_SERIES_F4) || defined(MCU_SERIES_F7)
+    #if defined(MCU_SERIES_F4) || defined(MCU_SERIES_F7) || defined(MCU_SERIES_L4)
     RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV4;
     RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2;
     #elif defined(MCU_SERIES_L4)
@@ -432,7 +435,11 @@ void SystemClock_Config(void)
 #endif
 
 #if !defined(MICROPY_HW_FLASH_LATENCY)
+#if defined(MCU_SERIES_F1)
+#define MICROPY_HW_FLASH_LATENCY FLASH_LATENCY_0
+#else
 #define MICROPY_HW_FLASH_LATENCY FLASH_LATENCY_5
+#endif
 #endif
 
   if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, MICROPY_HW_FLASH_LATENCY) != HAL_OK)

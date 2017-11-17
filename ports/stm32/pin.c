@@ -360,7 +360,12 @@ STATIC mp_obj_t pin_obj_init_helper(const pin_obj_t *self, size_t n_args, const 
     if (af == -1) {
         af = args[2].u_int;
     }
-    if ((mode == GPIO_MODE_AF_PP || mode == GPIO_MODE_AF_OD) && !IS_GPIO_AF(af)) {
+    if ((mode == GPIO_MODE_AF_PP || mode == GPIO_MODE_AF_OD) 
+#if defined(MCU_SERIES_F4) || defined(MCU_SERIES_F7) || defined(MCU_SERIES_L4)
+		&& !IS_GPIO_AF(af)
+#endif
+    )
+	{
         nlr_raise(mp_obj_new_exception_msg_varg(&mp_type_ValueError, "invalid pin af: %d", af));
     }
 
@@ -377,8 +382,14 @@ STATIC mp_obj_t pin_obj_init_helper(const pin_obj_t *self, size_t n_args, const 
     GPIO_InitStructure.Pin = self->pin_mask;
     GPIO_InitStructure.Mode = mode;
     GPIO_InitStructure.Pull = pull;
+#if defined(STM32L0) || defined(STM32L4) || defined(STM32F4) || defined(STM32F2) || defined(STM32F7)
     GPIO_InitStructure.Speed = GPIO_SPEED_FAST;
+#else
+	GPIO_InitStructure.Speed = GPIO_SPEED_MEDIUM;
+#endif
+#if defined(MCU_SERIES_F4) || defined(MCU_SERIES_F7) || defined(MCU_SERIES_L4)
     GPIO_InitStructure.Alternate = af;
+#endif
     HAL_GPIO_Init(self->gpio, &GPIO_InitStructure);
 
     return mp_const_none;

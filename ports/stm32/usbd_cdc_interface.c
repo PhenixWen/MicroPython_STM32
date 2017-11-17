@@ -159,12 +159,14 @@ void HAL_PCD_SOFCallback(PCD_HandleTypeDef *hpcd) {
         // We have a relatively large timeout because the USB host may be busy
         // doing other things and we must give it a chance to read our data.
         if (cdc->tx_buf_ptr_wait_count < 500) {
+			#if defined(MCU_SERIES_L4) || defined(MCU_SERIES_F4) || defined(MCU_SERIES_F7) || defined(STM32F105xC) || defined(STM32F107xC)
             USB_OTG_GlobalTypeDef *USBx = hpcd->Instance;
             if (USBx_INEP(CDC_IN_EP & 0x7f)->DIEPTSIZ & USB_OTG_DIEPTSIZ_XFRSIZ) {
                 // USB in-endpoint is still reading the data
                 cdc->tx_buf_ptr_wait_count++;
                 return;
             }
+			#endif
         }
         cdc->tx_buf_ptr_out = cdc->tx_buf_ptr_out_shadow;
     }

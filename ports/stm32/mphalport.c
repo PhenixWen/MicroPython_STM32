@@ -116,8 +116,10 @@ void mp_hal_gpio_clock_enable(GPIO_TypeDef *gpio) {
         #endif
         __GPIOG_CLK_ENABLE();
     #endif
+#if defined(MCU_SERIES_F4) || defined(MCU_SERIES_F7) || defined(MCU_SERIES_L4)
     #ifdef __GPIOH_CLK_ENABLE
-    } else if (gpio == GPIOH) {
+    } 
+	else if (gpio == GPIOH) {
         __GPIOH_CLK_ENABLE();
     #endif
     #if defined(GPIOI) && defined(__GPIOI_CLK_ENABLE)
@@ -132,9 +134,10 @@ void mp_hal_gpio_clock_enable(GPIO_TypeDef *gpio) {
     } else if (gpio == GPIOK) {
         __GPIOK_CLK_ENABLE();
     #endif
+#endif	
     }
 }
-
+#if defined(MCU_SERIES_F4) || defined(MCU_SERIES_F7) || defined(MCU_SERIES_L4)
 void mp_hal_pin_config(mp_hal_pin_obj_t pin_obj, uint32_t mode, uint32_t pull, uint32_t alt) {
     GPIO_TypeDef *gpio = pin_obj->gpio;
     uint32_t pin = pin_obj->pin;
@@ -145,7 +148,7 @@ void mp_hal_pin_config(mp_hal_pin_obj_t pin_obj, uint32_t mode, uint32_t pull, u
     gpio->PUPDR = (gpio->PUPDR & ~(3 << (2 * pin))) | (pull << (2 * pin));
     gpio->AFR[pin >> 3] = (gpio->AFR[pin >> 3] & ~(15 << (4 * (pin & 7)))) | (alt << (4 * (pin & 7)));
 }
-
+#endif
 bool mp_hal_pin_config_alt(mp_hal_pin_obj_t pin, uint32_t mode, uint32_t pull, uint8_t fn, uint8_t unit) {
     const pin_af_obj_t *af = pin_find_af(pin, fn, unit);
     if (af == NULL) {

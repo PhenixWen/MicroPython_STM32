@@ -164,6 +164,7 @@ void timer_deinit(void) {
 
 // TIM5 is set-up for the servo controller
 // This function inits but does not start the timer
+#if defined(TIM5)
 void timer_tim5_init(void) {
     // TIM5 clock enable
     __TIM5_CLK_ENABLE();
@@ -181,6 +182,7 @@ void timer_tim5_init(void) {
 
     HAL_TIM_PWM_Init(&TIM5_Handle);
 }
+#endif
 
 #if defined(TIM6)
 // Init TIM6 with a counter-overflow at the given frequency (given in Hz)
@@ -558,7 +560,9 @@ STATIC mp_obj_t pyb_timer_init_helper(pyb_timer_obj_t *self, size_t n_args, cons
         case 2: __TIM2_CLK_ENABLE(); break;
         case 3: __TIM3_CLK_ENABLE(); break;
         case 4: __TIM4_CLK_ENABLE(); break;
+		#if defined(TIM5)
         case 5: __TIM5_CLK_ENABLE(); break;
+		#endif
         #if defined(TIM6)
         case 6: __TIM6_CLK_ENABLE(); break;
         #endif
@@ -637,7 +641,9 @@ STATIC mp_obj_t pyb_timer_init_helper(pyb_timer_obj_t *self, size_t n_args, cons
 
 // This table encodes the timer instance and irq number.
 // It assumes that timer instance pointer has the lower 8 bits cleared.
+#if defined(TIM1) || defined(TIM2) || defined(TIM3) || defined(TIM4) || defined(TIM5) || defined(TIM6) || defined(TIM7) || defined(TIM8) || defined(TIM9) || defined(TIM10) || defined(TIM11) || defined(TIM12) || defined(TIM13) || defined(TIM14) || defined(TIM15) || defined(TIM16) || defined(TIM17)
 #define TIM_ENTRY(id, irq) [id - 1] = (uint32_t)TIM##id | irq
+#endif
 STATIC const uint32_t tim_instance_table[MICROPY_HW_MAX_TIMER] = {
     #if defined(MCU_SERIES_F4) || defined(MCU_SERIES_F7)
     TIM_ENTRY(1, TIM1_UP_TIM10_IRQn),
@@ -647,7 +653,9 @@ STATIC const uint32_t tim_instance_table[MICROPY_HW_MAX_TIMER] = {
     TIM_ENTRY(2, TIM2_IRQn),
     TIM_ENTRY(3, TIM3_IRQn),
     TIM_ENTRY(4, TIM4_IRQn),
+    #if defined(TIM5)
     TIM_ENTRY(5, TIM5_IRQn),
+    #endif
     #if defined(TIM6)
     TIM_ENTRY(6, TIM6_DAC_IRQn),
     #endif
@@ -1050,7 +1058,9 @@ STATIC mp_obj_t pyb_timer_channel(size_t n_args, const mp_obj_t *pos_args, mp_ma
             &&  self->tim.Instance != TIM2
             &&  self->tim.Instance != TIM3
             &&  self->tim.Instance != TIM4
+            #if defined(TIM5)
             &&  self->tim.Instance != TIM5
+            #endif
             #if defined(TIM8)
             &&  self->tim.Instance != TIM8
             #endif
@@ -1217,7 +1227,9 @@ STATIC const mp_rom_map_elem_t pyb_timer_locals_dict_table[] = {
     { MP_ROM_QSTR(MP_QSTR_LOW), MP_ROM_INT(TIM_OCPOLARITY_LOW) },
     { MP_ROM_QSTR(MP_QSTR_RISING), MP_ROM_INT(TIM_ICPOLARITY_RISING) },
     { MP_ROM_QSTR(MP_QSTR_FALLING), MP_ROM_INT(TIM_ICPOLARITY_FALLING) },
+#if defined(MCU_SERIES_F4) || defined(MCU_SERIES_F7) || defined(MCU_SERIES_L4)
     { MP_ROM_QSTR(MP_QSTR_BOTH), MP_ROM_INT(TIM_ICPOLARITY_BOTHEDGE) },
+#endif
 };
 STATIC MP_DEFINE_CONST_DICT(pyb_timer_locals_dict, pyb_timer_locals_dict_table);
 

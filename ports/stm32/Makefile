@@ -56,7 +56,8 @@ CFLAGS_CORTEX_M = -mthumb
 ifeq ($(CMSIS_MCU),$(filter $(CMSIS_MCU),STM32F767xx STM32F769xx))
 CFLAGS_CORTEX_M += -mfpu=fpv5-d16 -mfloat-abi=hard
 else
-CFLAGS_CORTEX_M += -mfpu=fpv4-sp-d16 -mfloat-abi=hard
+CFLAGS_CORTEX_M += -mfloat-abi=soft
+#-mfpu=fpv4-sp-d16 -mfloat-abi=hard
 endif
 
 # Options for particular MCU series

@@ -29,6 +29,7 @@
 
 // board specific definitions
 #include "mpconfigboard.h"
+#include STM32_HAL_H
 
 // memory allocation policies
 #define MICROPY_ALLOC_PATH_MAX      (128)
@@ -298,7 +299,7 @@ typedef long mp_off_t;
 // value from disable_irq back to enable_irq.  If you really need
 // to know the machine-specific values, see irq.h.
 
-#include STM32_HAL_H
+
 
 static inline void enable_irq(mp_uint_t state) {
     __set_PRIMASK(state);

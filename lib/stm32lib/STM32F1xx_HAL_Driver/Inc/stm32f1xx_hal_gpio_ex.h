@@ -71,6 +71,17 @@
   * @{
   */
   
+//Phenix add for test
+#define GPIO_AF1_TIM1                  ((uint8_t)6)// TIM1 Alternate Function mapping
+#define GPIO_AF1_TIM2                  ((uint8_t)8)// TIM2 Alternate Function mapping
+#define GPIO_AF2_TIM3                  ((uint8_t)10)// TIM3 Alternate Function mapping
+#define GPIO_AF3_I2C1                  ((uint8_t)1)// I2C1 Alternate Function mapping
+#define GPIO_AF4_SPI1                  ((uint8_t)0)// SPI1  Alternate Function mapping
+#define GPIO_AF5_USART1                ((uint8_t)2)// USART1 Alternate Function mapping
+#define GPIO_AF5_USART2                ((uint8_t)3)// USART2 Alternate Function mapping
+
+//END
+
 #define AFIO_EVENTOUT_PIN_0  AFIO_EVCR_PIN_PX0 /*!< EVENTOUT on pin 0 */
 #define AFIO_EVENTOUT_PIN_1  AFIO_EVCR_PIN_PX1 /*!< EVENTOUT on pin 1 */
 #define AFIO_EVENTOUT_PIN_2  AFIO_EVCR_PIN_PX2 /*!< EVENTOUT on pin 2 */

@@ -189,7 +189,7 @@ EXTMOD_SRC_C = $(addprefix extmod/,\
 DRIVERS_SRC_C = $(addprefix drivers/,\
 	memory/spiflash.c \
 	)
-ifeq ($(CMSIS_MCU),$(filter $(CMSIS_MCU),STM32F103xE STM32F103xB))
+ifeq ($(CMSIS_MCU),$(filter $(CMSIS_MCU),STM32F103xE STM32F103xB STM32F103xG))
 SRC_C = \
 	main.c \
 	system_stm32.c \
@@ -301,7 +301,7 @@ SRC_O = \
 	gchelper.o \
 	
 
-ifeq ($(CMSIS_MCU),$(filter $(CMSIS_MCU),STM32F103xE STM32F103xB))
+ifeq ($(CMSIS_MCU),$(filter $(CMSIS_MCU),STM32F103xE STM32F103xB STM32F103xG))
 SRC_HAL = $(addprefix $(HAL_DIR)/Src/stm32$(MCU_SERIES)xx_,\
 	hal.c \
 	hal_adc.c \

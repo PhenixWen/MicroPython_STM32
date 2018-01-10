@@ -150,6 +150,7 @@ STATIC bool is_adcx_channel(int channel) {
     return IS_ADC_CHANNEL(&handle, channel);
 #elif defined(MCU_SERIES_F1)
 // TODO STM32F1
+	return IS_ADC_CHANNEL(channel);
 #else
     #error Unsupported processor
 #endif
@@ -163,6 +164,7 @@ STATIC void adc_wait_for_eoc_or_timeout(int32_t timeout) {
     while (READ_BIT(ADCx->ISR, ADC_FLAG_EOC) != ADC_FLAG_EOC) {
 #elif defined(MCU_SERIES_F1)
 // TODO STM32F1
+    while ((ADCx->SR & ADC_FLAG_EOC) != ADC_FLAG_EOC) {
 #else
     #error Unsupported processor
 #endif
@@ -188,8 +190,11 @@ STATIC void adc_init_single(pyb_obj_adc_t *adc_obj) {
     if (!is_adcx_channel(adc_obj->channel)) {
         return;
     }
-
+#if defined(MCU_SERIES_L4) || defined(MCU_SERIES_F4) || defined(MCU_SERIES_F7) 
     if (ADC_FIRST_GPIO_CHANNEL <= adc_obj->channel && adc_obj->channel <= ADC_LAST_GPIO_CHANNEL) {
+#else
+    if (0 <= adc_obj->channel && adc_obj->channel <= 17) {
+#endif
       // Channels 0-16 correspond to real pins. Configure the GPIO pin in
       // ADC mode.
       const pin_obj_t *pin = pin_adc1[adc_obj->channel];
@@ -216,11 +221,15 @@ STATIC void adc_init_single(pyb_obj_adc_t *adc_obj) {
     adcHandle->Init.ContinuousConvMode    = DISABLE;
     adcHandle->Init.DiscontinuousConvMode = DISABLE;
     adcHandle->Init.NbrOfDiscConversion   = 0;
+	#if defined(MCU_SERIES_L4) || defined(MCU_SERIES_F4) || defined(MCU_SERIES_F7) 
     adcHandle->Init.ExternalTrigConvEdge  = ADC_EXTERNALTRIGCONVEDGE_NONE;
+	#endif
     adcHandle->Init.DataAlign             = ADC_DATAALIGN_RIGHT;
     adcHandle->Init.NbrOfConversion       = 1;
+	#if defined(MCU_SERIES_L4) || defined(MCU_SERIES_F4) || defined(MCU_SERIES_F7) 
     adcHandle->Init.DMAContinuousRequests = DISABLE;
     adcHandle->Init.Resolution            = ADC_RESOLUTION_12B;
+	#endif
 #if defined(MCU_SERIES_F4) || defined(MCU_SERIES_F7)
     adcHandle->Init.ClockPrescaler        = ADC_CLOCK_SYNC_PCLK_DIV2;
     adcHandle->Init.ScanConvMode          = DISABLE;
@@ -260,16 +269,18 @@ STATIC void adc_config_channel(ADC_HandleTypeDef *adc_handle, uint32_t channel) 
     sConfig.Rank = 1;
 #if defined(MCU_SERIES_F4) || defined(MCU_SERIES_F7)
     sConfig.SamplingTime = ADC_SAMPLETIME_15CYCLES;
+	sConfig.Offset = 0;
 #elif defined(MCU_SERIES_L4)
     sConfig.SamplingTime = ADC_SAMPLETIME_12CYCLES_5;
     sConfig.SingleDiff = ADC_SINGLE_ENDED;
     sConfig.OffsetNumber = ADC_OFFSET_NONE;
+	sConfig.Offset = 0;
 #elif defined(MCU_SERIES_F1)
 // TODO STM32F1
 #else
     #error Unsupported processor
 #endif
-    sConfig.Offset = 0;
+    
 
     HAL_ADC_ConfigChannel(adc_handle, &sConfig);
 }
@@ -324,8 +335,11 @@ STATIC mp_obj_t adc_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_
         nlr_raise(mp_obj_new_exception_msg_varg(&mp_type_ValueError, "not a valid ADC Channel: %d", channel));
     }
 
-
+#if defined(MCU_SERIES_L4) || defined(MCU_SERIES_F4) || defined(MCU_SERIES_F7) 
     if (ADC_FIRST_GPIO_CHANNEL <= channel && channel <= ADC_LAST_GPIO_CHANNEL) {
+#else
+    if (0 <= channel && channel <= 17) {
+#endif
         // these channels correspond to physical GPIO ports so make sure they exist
         if (pin_adc1[channel] == NULL) {
             nlr_raise(mp_obj_new_exception_msg_varg(&mp_type_ValueError,
@@ -491,6 +505,7 @@ typedef struct _pyb_adc_all_obj_t {
 
 void adc_init_all(pyb_adc_all_obj_t *adc_all, uint32_t resolution, uint32_t en_mask) {
 
+#if defined(MCU_SERIES_L4) || defined(MCU_SERIES_F4) || defined(MCU_SERIES_F7) 
     switch (resolution) {
         case 6:  resolution = ADC_RESOLUTION_6B;  break;
         case 8:  resolution = ADC_RESOLUTION_8B;  break;
@@ -500,8 +515,10 @@ void adc_init_all(pyb_adc_all_obj_t *adc_all, uint32_t resolution, uint32_t en_m
             nlr_raise(mp_obj_new_exception_msg_varg(&mp_type_ValueError,
                 "resolution %d not supported", resolution));
     }
-
     for (uint32_t channel = ADC_FIRST_GPIO_CHANNEL; channel <= ADC_LAST_GPIO_CHANNEL; ++channel) {
+#else
+    for (uint32_t channel = 0; channel <= 17; ++channel) {
+#endif
         // only initialise those channels that are selected with the en_mask
         if (en_mask & (1 << channel)) {
             // Channels 0-16 correspond to real pins. Configure the GPIO pin in
@@ -522,15 +539,21 @@ void adc_init_all(pyb_adc_all_obj_t *adc_all, uint32_t resolution, uint32_t en_m
 
     ADC_HandleTypeDef *adcHandle = &adc_all->handle;
     adcHandle->Instance = ADCx;
+	#if defined(MCU_SERIES_L4) || defined(MCU_SERIES_F4) || defined(MCU_SERIES_F7) 
     adcHandle->Init.Resolution            = resolution;
+	#endif
     adcHandle->Init.ContinuousConvMode    = DISABLE;
     adcHandle->Init.DiscontinuousConvMode = DISABLE;
     adcHandle->Init.NbrOfDiscConversion   = 0;
+	#if defined(MCU_SERIES_L4) || defined(MCU_SERIES_F4) || defined(MCU_SERIES_F7) 
     adcHandle->Init.ExternalTrigConvEdge  = ADC_EXTERNALTRIGCONVEDGE_NONE;
+	#endif
     adcHandle->Init.DataAlign             = ADC_DATAALIGN_RIGHT;
     adcHandle->Init.NbrOfConversion       = 1;
+	#if defined(MCU_SERIES_L4) || defined(MCU_SERIES_F4) || defined(MCU_SERIES_F7) 
     adcHandle->Init.DMAContinuousRequests = DISABLE;
     adcHandle->Init.EOCSelection          = DISABLE;
+    #endif
 #if defined(MCU_SERIES_F4) || defined(MCU_SERIES_F7)
     adcHandle->Init.ClockPrescaler        = ADC_CLOCK_SYNC_PCLK_DIV2;
     adcHandle->Init.ScanConvMode          = DISABLE;
@@ -557,6 +580,7 @@ uint32_t adc_config_and_read_channel(ADC_HandleTypeDef *adcHandle, uint32_t chan
 }
 
 int adc_get_resolution(ADC_HandleTypeDef *adcHandle) {
+	#if defined(MCU_SERIES_L4) || defined(MCU_SERIES_F4) || defined(MCU_SERIES_F7) 
     uint32_t res_reg = __HAL_ADC_GET_RESOLUTION(adcHandle);
 
     switch (res_reg) {
@@ -565,6 +589,10 @@ int adc_get_resolution(ADC_HandleTypeDef *adcHandle) {
         case ADC_RESOLUTION_10B: return 10;
     }
     return 12;
+#else
+ return 12;
+//TODO...
+#endif
 }
 
 int adc_read_core_temp(ADC_HandleTypeDef *adcHandle) {
@@ -586,12 +614,17 @@ float adc_read_core_temp_float(ADC_HandleTypeDef *adcHandle) {
 
     // constants assume 12-bit resolution so we scale the raw value to 12-bits
     raw_value <<= (12 - adc_get_resolution(adcHandle));
-
+#if defined(MCU_SERIES_L4) || defined(MCU_SERIES_F4) || defined(MCU_SERIES_F7) 
     float core_temp_avg_slope = (*ADC_CAL2 - *ADC_CAL1) / 80.0;
     return (((float)raw_value * adc_refcor - *ADC_CAL1) / core_temp_avg_slope) + 30.0f;
+#else
+	return 0;
+	//TODO...
+#endif
 }
 
 float adc_read_core_vbat(ADC_HandleTypeDef *adcHandle) {
+#if defined(MCU_SERIES_L4) || defined(MCU_SERIES_F4) || defined(MCU_SERIES_F7) 
     uint32_t raw_value = adc_config_and_read_channel(adcHandle, ADC_CHANNEL_VBAT);
 
     // Note: constants assume 12-bit resolution, so we scale the raw value to
@@ -608,9 +641,14 @@ float adc_read_core_vbat(ADC_HandleTypeDef *adcHandle) {
     #endif
 
     return raw_value * VBAT_DIV * ADC_SCALE * adc_refcor;
+#else
+return 0;
+//TODO...
+#endif
 }
 
 float adc_read_core_vref(ADC_HandleTypeDef *adcHandle) {
+#if defined(MCU_SERIES_L4) || defined(MCU_SERIES_F4) || defined(MCU_SERIES_F7) 
     uint32_t raw_value = adc_config_and_read_channel(adcHandle, ADC_CHANNEL_VREFINT);
 
     // Note: constants assume 12-bit resolution, so we scale the raw value to
@@ -621,6 +659,10 @@ float adc_read_core_vref(ADC_HandleTypeDef *adcHandle) {
     adc_refcor = ((float)(*VREFIN_CAL)) / ((float)raw_value);
 
     return (*VREFIN_CAL) * ADC_SCALE;
+#else
+return 0;
+//TODO...
+#endif
 }
 #endif
 

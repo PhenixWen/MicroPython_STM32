@@ -44,6 +44,7 @@
 #define USE_INTERNAL (1)
 #endif
 
+#if defined(MCU_SERIES_L4) || defined(MCU_SERIES_F4) || defined(MCU_SERIES_F7) 
 #if USE_INTERNAL
 
 #if defined(STM32F405xx) || defined(STM32F415xx) || defined(STM32F407xx)
@@ -522,3 +523,6 @@ void pyb_flash_init_vfs(fs_user_mount_t *vfs) {
     vfs->u.ioctl[0] = (mp_obj_t)&pyb_flash_ioctl_obj;
     vfs->u.ioctl[1] = (mp_obj_t)&pyb_flash_obj;
 }
+#else
+//TODO...
+#endif

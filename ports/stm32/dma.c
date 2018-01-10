@@ -53,12 +53,12 @@ typedef enum {
 } dma_id_t;
 
 typedef struct _dma_descr_t {
-    #if defined(MCU_SERIES_F4) || defined(MCU_SERIES_F7) || defined(MCU_SERIES_F1)
+    #if defined(MCU_SERIES_F4) || defined(MCU_SERIES_F7)
     DMA_Stream_TypeDef *instance;
     #elif defined(MCU_SERIES_L4)
     DMA_Channel_TypeDef *instance;
-    // #elif defined(MCU_SERIES_F1)
-    // TODO STM32F1
+    #elif defined(MCU_SERIES_F1)
+    DMA_Channel_TypeDef *instance;
     #else
     #error "Unsupported Processor"
     #endif
@@ -142,7 +142,19 @@ static const DMA_InitTypeDef dma_init_struct_dac = {
     #endif
 };
 #endif
+#if defined(MCU_SERIES_F1)
+//TODO.....
+//const dma_descr_t dma_I2C_1_RX = { DMA1_Stream0, DMA_CHANNEL_1, DMA_PERIPH_TO_MEMORY, dma_id_0,   &dma_init_struct_spi_i2c };
+//const dma_descr_t dma_SPI_3_RX = { DMA1_Stream2, DMA_CHANNEL_0, DMA_PERIPH_TO_MEMORY, dma_id_2,   &dma_init_struct_spi_i2c };
+//const dma_descr_t dma_SPI_3_TX = { DMA1_Stream7, DMA_CHANNEL_0, DMA_MEMORY_TO_PERIPH, dma_id_7,   &dma_init_struct_spi_i2c };
+//const dma_descr_t dma_I2C_1_TX = { DMA1_Stream7, DMA_CHANNEL_1, DMA_MEMORY_TO_PERIPH, dma_id_7,   &dma_init_struct_spi_i2c };
+//const dma_descr_t dma_I2C_2_TX = { DMA1_Stream7, DMA_CHANNEL_7, DMA_MEMORY_TO_PERIPH, dma_id_7,   &dma_init_struct_spi_i2c };
+//const dma_descr_t dma_I2C_2_RX = { DMA1_Stream2, DMA_CHANNEL_7, DMA_PERIPH_TO_MEMORY, dma_id_2,   &dma_init_struct_spi_i2c };
+//const dma_descr_t dma_SPI_2_RX = { DMA1_Stream3, DMA_CHANNEL_0, DMA_PERIPH_TO_MEMORY, dma_id_3,   &dma_init_struct_spi_i2c };
+//const dma_descr_t dma_SPI_2_TX = { DMA1_Stream4, DMA_CHANNEL_0, DMA_MEMORY_TO_PERIPH, dma_id_4,   &dma_init_struct_spi_i2c };
+//const dma_descr_t dma_I2C_3_TX = { DMA1_Stream4, DMA_CHANNEL_3, DMA_MEMORY_TO_PERIPH, dma_id_4,   &dma_init_struct_spi_i2c };
 
+#else
 #if defined(MCU_SERIES_F4) || defined(MCU_SERIES_F7)
 
 #define NCONTROLLERS            (2)
@@ -508,3 +520,4 @@ void dma_idle_handler(int tick) {
         }
     }
 }
+#endif

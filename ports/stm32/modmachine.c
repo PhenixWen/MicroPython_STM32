@@ -86,8 +86,10 @@ void machine_init(void) {
         uint32_t state = RCC->CSR;
         if (state & RCC_CSR_IWDGRSTF || state & RCC_CSR_WWDGRSTF) {
             reset_cause = PYB_RESET_WDT;
+		#if defined(MCU_SERIES_F4) || defined(MCU_SERIES_F7)
         } else if (state & RCC_CSR_PORRSTF || state & RCC_CSR_BORRSTF) {
             reset_cause = PYB_RESET_POWER_ON;
+		#endif
         } else if (state & RCC_CSR_PINRSTF) {
             reset_cause = PYB_RESET_HARD;
         } else {
@@ -218,7 +220,9 @@ STATIC NORETURN mp_obj_t machine_bootloader(void) {
 
     ((void (*)(void)) *((uint32_t*) 0x1FF00004))();
 #else
+    #if defined(MCU_SERIES_F4)
     __HAL_REMAPMEMORY_SYSTEMFLASH();
+	#endif
 
     // arm-none-eabi-gcc 4.9.0 does not correctly inline this
     // MSP function, so we write it out explicitly here.
@@ -349,10 +353,17 @@ STATIC mp_obj_t machine_freq(size_t n_args, const mp_obj_t *args) {
         RCC_OscInitStruct.HSEState = RCC_HSE_ON;
         RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
         RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
+		#if defined(MCU_SERIES_F7) || defined(MCU_SERIES_F4) 
         RCC_OscInitStruct.PLL.PLLM = m;
         RCC_OscInitStruct.PLL.PLLN = n;
         RCC_OscInitStruct.PLL.PLLP = p;
         RCC_OscInitStruct.PLL.PLLQ = q;
+		#else
+		p = p;
+		q = q;
+		m = m;
+		n = n;
+		#endif
         if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
             goto fail;
         }
@@ -375,7 +386,11 @@ STATIC mp_obj_t machine_freq(size_t n_args, const mp_obj_t *args) {
             #endif
 
             #if !defined(MICROPY_HW_FLASH_LATENCY)
+			#if defined(MCU_SERIES_F7) || defined(MCU_SERIES_F4) 
             #define MICROPY_HW_FLASH_LATENCY FLASH_LATENCY_5
+			#else
+			#define MICROPY_HW_FLASH_LATENCY FLASH_LATENCY_1
+			#endif
             #endif
             RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_SYSCLK;
             RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
@@ -439,9 +454,10 @@ STATIC mp_obj_t machine_sleep(void) {
     HAL_RCC_ClockConfig(&RCC_ClkInitStruct, pFLatency);
 
     #else
-
+    #if defined(MCU_SERIES_F7) || defined(MCU_SERIES_F4)
     // takes longer to wake but reduces stop current
     HAL_PWREx_EnableFlashPowerDown();
+	#endif
 
     # if defined(MCU_SERIES_F7)
     HAL_PWR_EnterSTOPMode((PWR_CR1_LPDS | PWR_CR1_LPUDS | PWR_CR1_FPDS | PWR_CR1_UDEN), PWR_STOPENTRY_WFI);
@@ -475,7 +491,7 @@ MP_DEFINE_CONST_FUN_OBJ_0(machine_sleep_obj, machine_sleep);
 STATIC mp_obj_t machine_deepsleep(void) {
     rtc_init_finalise();
 
-#if defined(MCU_SERIES_L4)
+#if defined(MCU_SERIES_L4) || defined(MCU_SERIES_F1)
     printf("machine.deepsleep not supported yet\n");
 #else
     // We need to clear the PWR wake-up-flag before entering standby, since

@@ -435,7 +435,7 @@ STATIC size_t uart_tx_data(pyb_uart_obj_t *self, const void *src_in, size_t num_
         } else {
             data = *src++;
         }
-        #if defined(MCU_SERIES_F4)
+        #if defined(MCU_SERIES_F4) || defined(MCU_SERIES_F1)
         uart->DR = data;
         #else
         uart->TDR = data;

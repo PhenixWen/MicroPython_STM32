@@ -113,12 +113,17 @@ void rtc_init_start(bool force_init) {
       - OutPut         = Output Disable
       - OutPutPolarity = High Polarity
       - OutPutType     = Open Drain */
+	#if defined(MCU_SERIES_L4) || defined(MCU_SERIES_F4) || defined(MCU_SERIES_F7) 
     RTCHandle.Init.HourFormat = RTC_HOURFORMAT_24;
     RTCHandle.Init.AsynchPrediv = RTC_ASYNCH_PREDIV;
     RTCHandle.Init.SynchPrediv = RTC_SYNCH_PREDIV;
     RTCHandle.Init.OutPut = RTC_OUTPUT_DISABLE;
     RTCHandle.Init.OutPutPolarity = RTC_OUTPUT_POLARITY_HIGH;
     RTCHandle.Init.OutPutType = RTC_OUTPUT_TYPE_OPENDRAIN;
+	#else
+	RTCHandle.Init.AsynchPrediv = RTC_ASYNCH_PREDIV;
+	RTCHandle.Init.OutPut = 0;
+	#endif
 
     rtc_need_init_finalise = false;
 
@@ -271,7 +276,8 @@ STATIC HAL_StatusTypeDef PYB_RTC_Init(RTC_HandleTypeDef *hrtc) {
 
     // Disable the write protection for RTC registers
     __HAL_RTC_WRITEPROTECTION_DISABLE(hrtc);
-
+    
+#if defined(MCU_SERIES_L4) || defined(MCU_SERIES_F4) || defined(MCU_SERIES_F7) 
     // Set Initialization mode
     if (RTC_EnterInitMode(hrtc) != HAL_OK) {
         // Enable the write protection for RTC registers
@@ -313,6 +319,10 @@ STATIC HAL_StatusTypeDef PYB_RTC_Init(RTC_HandleTypeDef *hrtc) {
 
         return HAL_OK;
     }
+#else
+return HAL_OK;
+//TODO....
+#endif
 }
 
 STATIC void PYB_RTC_MspInit_Kick(RTC_HandleTypeDef *hrtc, bool rtc_use_lse) {
@@ -401,10 +411,11 @@ STATIC void RTC_CalendarConfig(void) {
     time.Hours = 0;
     time.Minutes = 0;
     time.Seconds = 0;
+	#if defined(MCU_SERIES_L4) || defined(MCU_SERIES_F4) || defined(MCU_SERIES_F7) 
     time.TimeFormat = RTC_HOURFORMAT12_AM;
     time.DayLightSaving = RTC_DAYLIGHTSAVING_NONE;
     time.StoreOperation = RTC_STOREOPERATION_RESET;
-
+    #endif
     if (HAL_RTC_SetTime(&RTCHandle, &time, FORMAT_BIN) != HAL_OK) {
         // init error
         return;
@@ -498,7 +509,9 @@ mp_obj_t pyb_rtc_datetime(size_t n_args, const mp_obj_t *args) {
             mp_obj_new_int(time.Hours),
             mp_obj_new_int(time.Minutes),
             mp_obj_new_int(time.Seconds),
+		#if defined(MCU_SERIES_L4) || defined(MCU_SERIES_F4) || defined(MCU_SERIES_F7) 
             mp_obj_new_int(rtc_subsec_to_us(time.SubSeconds)),
+		#endif
         };
         return mp_obj_new_tuple(8, tuple);
     } else {
@@ -517,10 +530,12 @@ mp_obj_t pyb_rtc_datetime(size_t n_args, const mp_obj_t *args) {
         time.Hours = mp_obj_get_int(items[4]);
         time.Minutes = mp_obj_get_int(items[5]);
         time.Seconds = mp_obj_get_int(items[6]);
+	#if defined(MCU_SERIES_L4) || defined(MCU_SERIES_F4) || defined(MCU_SERIES_F7) 
         time.SubSeconds = rtc_us_to_subsec(mp_obj_get_int(items[7]));
         time.TimeFormat = RTC_HOURFORMAT12_AM;
         time.DayLightSaving = RTC_DAYLIGHTSAVING_NONE;
         time.StoreOperation = RTC_STOREOPERATION_SET;
+	#endif
         HAL_RTC_SetTime(&RTCHandle, &time, FORMAT_BIN);
 
         return mp_const_none;
@@ -544,9 +559,10 @@ mp_obj_t pyb_rtc_wakeup(size_t n_args, const mp_obj_t *args) {
 
     rtc_init_finalise();
 
+#if defined(MCU_SERIES_L4) || defined(MCU_SERIES_F4) || defined(MCU_SERIES_F7) 
     // disable wakeup IRQ while we configure it
     HAL_NVIC_DisableIRQ(RTC_WKUP_IRQn);
-
+#endif
     bool enable = false;
     mp_int_t wucksel;
     mp_int_t wut;
@@ -598,7 +614,7 @@ mp_obj_t pyb_rtc_wakeup(size_t n_args, const mp_obj_t *args) {
 
     // set the callback
     MP_STATE_PORT(pyb_extint_callback)[22] = callback;
-
+#if defined(MCU_SERIES_L4) || defined(MCU_SERIES_F4) || defined(MCU_SERIES_F7) 
     // disable register write protection
     RTC->WPR = 0xca;
     RTC->WPR = 0x53;
@@ -657,7 +673,10 @@ mp_obj_t pyb_rtc_wakeup(size_t n_args, const mp_obj_t *args) {
         EXTI->IMR &= ~(1 << 22);
         #endif
     }
-
+#else
+enable = enable;
+//TODO...
+#endif
     return mp_const_none;
 }
 MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(pyb_rtc_wakeup_obj, 2, 4, pyb_rtc_wakeup);
@@ -691,6 +710,7 @@ mp_obj_t pyb_rtc_calibration(size_t n_args, const mp_obj_t *args) {
             mp_raise_ValueError("calibration value out of range");
 #endif
         }
+#if defined(MCU_SERIES_L4) || defined(MCU_SERIES_F4) || defined(MCU_SERIES_F7) 
         if (cal > 0) {
             cal_p = RTC_SMOOTHCALIB_PLUSPULSES_SET;
             cal_m = 512 - cal;
@@ -699,15 +719,25 @@ mp_obj_t pyb_rtc_calibration(size_t n_args, const mp_obj_t *args) {
             cal_m = -cal;
         }
         HAL_RTCEx_SetSmoothCalib(&RTCHandle, RTC_SMOOTHCALIB_PERIOD_32SEC, cal_p, cal_m);
+#else
+cal_p = cal_p;
+cal_m = cal_m;
+//TODO...
+#endif
         return mp_const_none;
     } else {
         // printf("CALR = 0x%x\n", (mp_uint_t) RTCHandle.Instance->CALR); // DEBUG
         // Test if CALP bit is set in CALR:
+#if defined(MCU_SERIES_L4) || defined(MCU_SERIES_F4) || defined(MCU_SERIES_F7) 
         if (RTCHandle.Instance->CALR & 0x8000) {
             cal = 512 - (RTCHandle.Instance->CALR & 0x1ff);
         } else {
             cal = -(RTCHandle.Instance->CALR & 0x1ff);
         }
+#else
+cal = 0;
+//TODO...
+#endif
         return mp_obj_new_int(cal);
     }
 }

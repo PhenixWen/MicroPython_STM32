@@ -48,6 +48,8 @@
   .cpu cortex-m7
 #elif defined(MCU_SERIES_F4) || defined(MCU_SERIES_L4)
   .cpu cortex-m4
+#elif defined(MCU_SERIES_F1)
+  .cpu cortex-m3
 #else
   #error "Unknown MCU Series"
 #endif

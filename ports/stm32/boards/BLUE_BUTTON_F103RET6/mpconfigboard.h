@@ -41,12 +41,13 @@
 #define MICROPY_HW_UART3_CTS    (pin_B13) // PB13
 
 // I2C busses
-#define MICROPY_HW_I2C1_SCL (pin_B6)  // PB8,PB6
-#define MICROPY_HW_I2C1_SDA (pin_B7)  // PB9,PB7
-#define MICROPY_HW_I2C2_SCL (pin_B10) // PB10
-#define MICROPY_HW_I2C2_SDA (pin_B11) // PB11
+//#define MICROPY_HW_I2C1_SCL (pin_B6)  // PB8,PB6
+//#define MICROPY_HW_I2C1_SDA (pin_B7)  // PB9,PB7
+//#define MICROPY_HW_I2C2_SCL (pin_B10) // PB10
+//#define MICROPY_HW_I2C2_SDA (pin_B11) // PB11
 
 // SPI busses
+#if 0
 #define MICROPY_HW_SPI1_NSS  (pin_A4)  // PA4,PA15
 #define MICROPY_HW_SPI1_SCK  (pin_A5)  // PA5,PB3
 #define MICROPY_HW_SPI1_MISO (pin_A6)  // PA6,PB4
@@ -56,7 +57,7 @@
 #define MICROPY_HW_SPI2_SCK  (pin_B13) // PB13
 #define MICROPY_HW_SPI2_MISO (pin_B14) // PB14
 #define MICROPY_HW_SPI2_MOSI (pin_B15) // PB15
-
+#endif
 // CAN busses
 // CAN_TX PB9,PA12
 // CAN_RX PB8,PA11

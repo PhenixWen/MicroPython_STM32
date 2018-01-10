@@ -108,7 +108,7 @@ static uint32_t get_page(uint32_t addr) {
 }
 
 #endif
-
+#if defined(MCU_SERIES_L4) || defined(MCU_SERIES_F4) || defined(MCU_SERIES_F7) 
 uint32_t flash_get_sector_info(uint32_t addr, uint32_t *start_addr, uint32_t *size) {
     if (addr >= flash_layout[0].base_address) {
         uint32_t sector_index = 0;
@@ -289,3 +289,6 @@ void flash_erase_and_write(uint32_t flash_dest, const uint32_t *src, uint32_t nu
     HAL_FLASH_Lock();
 }
 */
+#else
+//TODO...
+#endif

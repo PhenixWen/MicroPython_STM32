@@ -75,7 +75,10 @@
 // SPI5_RX: DMA2_Stream3.CHANNEL_2 or DMA2_Stream5.CHANNEL_7
 // SPI6_TX: DMA2_Stream5.CHANNEL_1
 // SPI6_RX: DMA2_Stream6.CHANNEL_1
+#if defined(MCU_SERIES_F1)
+//TODO.....
 
+#else
 typedef struct _pyb_spi_obj_t {
     mp_obj_base_t base;
     SPI_HandleTypeDef *spi;
@@ -954,3 +957,4 @@ const mp_obj_type_t machine_hard_spi_type = {
     .protocol = &machine_hard_spi_p,
     .locals_dict = (mp_obj_t)&mp_machine_spi_locals_dict,
 };
+#endif

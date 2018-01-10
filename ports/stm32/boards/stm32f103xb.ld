@@ -6,6 +6,8 @@
 MEMORY
 {
     FLASH (rx)      : ORIGIN = 0x08000000, LENGTH = 128K /* entire flash */
+    FLASH_ISR (rx)  : ORIGIN = 0x08000000, LENGTH = 16K /* sector 0 */
+    FLASH_TEXT (rx) : ORIGIN = 0x08004000, LENGTH = 112K /*sectors 1,2,3,4 */	
     RAM (xrw)       : ORIGIN = 0x20000000, LENGTH = 20K
 }
 

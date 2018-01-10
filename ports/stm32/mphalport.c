@@ -148,6 +148,13 @@ void mp_hal_pin_config(mp_hal_pin_obj_t pin_obj, uint32_t mode, uint32_t pull, u
     gpio->PUPDR = (gpio->PUPDR & ~(3 << (2 * pin))) | (pull << (2 * pin));
     gpio->AFR[pin >> 3] = (gpio->AFR[pin >> 3] & ~(15 << (4 * (pin & 7)))) | (alt << (4 * (pin & 7)));
 }
+#else
+void mp_hal_pin_config(mp_hal_pin_obj_t pin_obj, uint32_t mode, uint32_t pull, uint32_t alt) {
+    GPIO_TypeDef *gpio = pin_obj->gpio;
+    //uint32_t pin = pin_obj->pin;
+    mp_hal_gpio_clock_enable(gpio);
+ //TODO...
+}
 #endif
 bool mp_hal_pin_config_alt(mp_hal_pin_obj_t pin, uint32_t mode, uint32_t pull, uint8_t fn, uint8_t unit) {
     const pin_af_obj_t *af = pin_find_af(pin, fn, unit);

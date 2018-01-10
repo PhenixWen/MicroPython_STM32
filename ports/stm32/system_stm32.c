@@ -107,7 +107,7 @@ void __fatal_error(const char *msg);
   * @{
   */
 
-#if defined(MCU_SERIES_F4) || defined(MCU_SERIES_F7) || defined(MCU_SERIES_F1)
+#if defined(MCU_SERIES_F4) || defined(MCU_SERIES_F7)
 
 #define CONFIG_RCC_CR_1ST (RCC_CR_HSION)
 #define CONFIG_RCC_CR_2ND (RCC_CR_HSEON || RCC_CR_CSSON || RCC_CR_PLLON)
@@ -138,7 +138,13 @@ const uint32_t MSIRangeTable[12] = {100000, 200000, 400000, 800000, 1000000, 200
 
 // #elif defined(MCU_SERIES_F1)
 // TODO STM32F1
+#elif defined(MCU_SERIES_F1)
+#define CONFIG_RCC_CR_1ST (RCC_CR_HSION)
+#define CONFIG_RCC_CR_2ND (RCC_CR_HSEON || RCC_CR_CSSON || RCC_CR_PLLON)
+#define CONFIG_RCC_PLLCFGR (0x24003010)
 
+const uint8_t  AHBPrescTable[16] = {0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 6, 7, 8, 9};
+const uint8_t  APBPrescTable[8] =  {0, 0, 0, 0, 1, 2, 3, 4};
 #else
 #error Unknown processor
 #endif

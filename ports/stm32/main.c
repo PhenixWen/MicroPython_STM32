@@ -168,8 +168,9 @@ MP_NOINLINE STATIC bool init_flash_fs(uint reset_mode) {
     // init the vfs object
     fs_user_mount_t *vfs_fat = &fs_user_mount_flash;
     vfs_fat->flags = 0;
+#if defined(MCU_SERIAL_L4) || defined(MCU_SERIAL_F4) || defined(MCU_SERIAL_F7)
     pyb_flash_init_vfs(vfs_fat);
-
+#endif
     // try to mount the flash
     FRESULT res = f_mount(&vfs_fat->fatfs);
 
@@ -494,7 +495,9 @@ soft_reset:
     }
 #endif
     if (first_soft_reset) {
+#if defined(MCU_SERIAL_L4) || defined(MCU_SERIAL_F4) || defined(MCU_SERIAL_F7)	
         storage_init();
+#endif
     }
 
     // Python threading init
@@ -552,7 +555,9 @@ soft_reset:
 #endif
 
     i2c_init0();
+#if defined(MCU_SERIAL_L4) || defined(MCU_SERIAL_F4) || defined(MCU_SERIAL_F7)	
     spi_init0();
+#endif
     pyb_usb_init0();
 
     // Initialise the local flash filesystem.
@@ -681,8 +686,9 @@ soft_reset_exit:
     // soft reset
 
     printf("PYB: sync filesystems\n");
+#if defined(MCU_SERIAL_L4) || defined(MCU_SERIAL_F4) || defined(MCU_SERIAL_F7)	
     storage_flush();
-
+#endif
     printf("PYB: soft reboot\n");
     timer_deinit();
     uart_deinit();

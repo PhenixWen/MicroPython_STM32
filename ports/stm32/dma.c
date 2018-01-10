@@ -153,7 +153,27 @@ static const DMA_InitTypeDef dma_init_struct_dac = {
 //const dma_descr_t dma_SPI_2_RX = { DMA1_Stream3, DMA_CHANNEL_0, DMA_PERIPH_TO_MEMORY, dma_id_3,   &dma_init_struct_spi_i2c };
 //const dma_descr_t dma_SPI_2_TX = { DMA1_Stream4, DMA_CHANNEL_0, DMA_MEMORY_TO_PERIPH, dma_id_4,   &dma_init_struct_spi_i2c };
 //const dma_descr_t dma_I2C_3_TX = { DMA1_Stream4, DMA_CHANNEL_3, DMA_MEMORY_TO_PERIPH, dma_id_4,   &dma_init_struct_spi_i2c };
+#define NCONTROLLERS            (2)
+#define NSTREAMS_PER_CONTROLLER (8)
+#define NSTREAM                 (NCONTROLLERS * NSTREAMS_PER_CONTROLLER)
 
+//static DMA_HandleTypeDef *dma_handle[NSTREAM] = {NULL};
+//static uint8_t dma_last_sub_instance[NSTREAM];
+static volatile uint32_t dma_enable_mask = 0;
+volatile dma_idle_count_t dma_idle;
+
+// Called from the SysTick handler
+// We use LSB of tick to select which controller to process
+void dma_idle_handler(int tick) {
+    
+}
+void dma_init(DMA_HandleTypeDef *dma, const dma_descr_t *dma_descr, void *data){
+    
+}
+
+void dma_deinit(const dma_descr_t *dma_descr) {
+
+}
 #else
 #if defined(MCU_SERIES_F4) || defined(MCU_SERIES_F7)
 

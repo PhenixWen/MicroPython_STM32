@@ -189,7 +189,59 @@ EXTMOD_SRC_C = $(addprefix extmod/,\
 DRIVERS_SRC_C = $(addprefix drivers/,\
 	memory/spiflash.c \
 	)
-
+ifeq ($(CMSIS_MCU),$(filter $(CMSIS_MCU),STM32F103xE STM32F103xB))
+SRC_C = \
+	main.c \
+	system_stm32.c \
+	stm32_it.c \
+	usbd_conf.c \
+	usbd_desc.c \
+	usbd_cdc_interface.c \
+	usbd_hid_interface.c \
+	mphalport.c \
+	mpthreadport.c \
+	irq.c \
+	pendsv.c \
+	systick.c  \
+	pybthread.c \
+	timer.c \
+	led.c \
+	pin.c \
+	pin_defs_stm32.c \
+	pin_named_pins.c \
+	bufhelper.c \
+	dma.c \
+	i2c.c \
+	spi.c \
+	uart.c \
+	can.c \
+	usb.c \
+	wdt.c \
+	gccollect.c \
+	help.c \
+	machine_i2c.c \
+	modmachine.c \
+	modpyb.c \
+	modstm.c \
+	moduos.c \
+	modutime.c \
+	modusocket.c \
+	modnetwork.c \
+	extint.c \
+	usrsw.c \
+	rng.c \
+	rtc.c \
+	flash.c \
+	storage.c \
+	sdcard.c \
+	fatfs_port.c \
+	lcd.c \
+	accel.c \
+	servo.c \
+	dac.c \
+	adc.c \
+	$(wildcard boards/$(BOARD)/*.c)
+else
 SRC_C = \
 	main.c \
 	system_stm32.c \
@@ -242,11 +294,43 @@ SRC_C = \
 	dac.c \
 	adc.c \
 	$(wildcard boards/$(BOARD)/*.c)
+endif
 
 SRC_O = \
 	startup_stm32.o \
 	gchelper.o \
+	
 
+ifeq ($(CMSIS_MCU),$(filter $(CMSIS_MCU),STM32F103xE STM32F103xB))
+SRC_HAL = $(addprefix $(HAL_DIR)/Src/stm32$(MCU_SERIES)xx_,\
+	hal.c \
+	hal_adc.c \
+	hal_adc_ex.c \
+	hal_can.c \
+	hal_cortex.c \
+	hal_dac.c \
+	hal_dac_ex.c \
+	hal_dma.c \
+	hal_flash.c \
+	hal_flash_ex.c \
+	hal_gpio.c \
+	hal_i2c.c \
+	hal_pcd.c \
+	hal_pcd_ex.c \
+	hal_pwr.c \
+	hal_rcc.c \
+	hal_rcc_ex.c \
+	hal_rtc.c \
+	hal_rtc_ex.c \
+	hal_sd.c \
+	hal_spi.c \
+	hal_tim.c \
+	hal_tim_ex.c \
+	hal_uart.c \
+	ll_sdmmc.c \
+	ll_usb.c \
+	)
+else
 SRC_HAL = $(addprefix $(HAL_DIR)/Src/stm32$(MCU_SERIES)xx_,\
 	hal.c \
 	hal_adc.c \
@@ -278,6 +362,7 @@ SRC_HAL = $(addprefix $(HAL_DIR)/Src/stm32$(MCU_SERIES)xx_,\
 	ll_usb.c \
 	)
 
+endif
 SRC_USBDEV = $(addprefix $(USBDEV_DIR)/,\
 	core/src/usbd_core.c \
 	core/src/usbd_ctlreq.c \

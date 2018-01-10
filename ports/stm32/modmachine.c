@@ -202,7 +202,9 @@ MP_DEFINE_CONST_FUN_OBJ_0(machine_soft_reset_obj, machine_soft_reset);
 // Activate the bootloader without BOOT* pins.
 STATIC NORETURN mp_obj_t machine_bootloader(void) {
     pyb_usb_dev_deinit();
+#if defined(MCU_SERIAL_L4) || defined(MCU_SERIAL_F4) || defined(MCU_SERIAL_F7)		
     storage_flush();
+#endif
 
     HAL_RCC_DeInit();
     HAL_DeInit();
@@ -575,7 +577,9 @@ STATIC const mp_rom_map_elem_t machine_module_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR_ADC),                 MP_ROM_PTR(&pyb_adc_type) },
 #endif
     { MP_ROM_QSTR(MP_QSTR_I2C),                 MP_ROM_PTR(&machine_i2c_type) },
+#if defined(MCU_SERIAL_L4) || defined(MCU_SERIAL_F4) || defined(MCU_SERIAL_F7)		
     { MP_ROM_QSTR(MP_QSTR_SPI),                 MP_ROM_PTR(&machine_hard_spi_type) },
+#endif
     { MP_ROM_QSTR(MP_QSTR_UART),                MP_ROM_PTR(&pyb_uart_type) },
     { MP_ROM_QSTR(MP_QSTR_WDT),                 MP_ROM_PTR(&pyb_wdt_type) },
 #if 0

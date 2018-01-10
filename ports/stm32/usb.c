@@ -139,7 +139,9 @@ bool pyb_usb_dev_init(uint16_t vid, uint16_t pid, usb_device_mode_t mode, USBD_H
                 break;
 #endif
             default:
+#if defined(MCU_SERIAL_L4) || defined(MCU_SERIAL_F4) || defined(MCU_SERIAL_F7)					
                 USBD_MSC_RegisterStorage(&usb_dev->usbd_cdc_msc_hid_state, (USBD_StorageTypeDef*)&USBD_FLASH_STORAGE_fops);
+#endif
                 break;
         }
 

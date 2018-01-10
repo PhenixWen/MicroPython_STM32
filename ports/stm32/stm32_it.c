@@ -454,7 +454,9 @@ void FLASH_IRQHandler(void) {
     }
     */
     // This call the storage IRQ handler, to check if the flash cache needs flushing
+#if defined(MCU_SERIAL_L4) || defined(MCU_SERIAL_F4) || defined(MCU_SERIAL_F7)		
     storage_irq_handler();
+#endif
     IRQ_EXIT(FLASH_IRQn);
 }
 

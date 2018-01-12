@@ -107,8 +107,6 @@ static char heap[2048];
 int main(int argc, char **argv) {
     int stack_dummy;
     stack_top = (char*)&stack_dummy;
-    gpio_init(GPIOB, 8, GPIO_MODE_OUT, GPIO_PULL_NONE, 0);
-    gpio_low(GPIOB, 8);
     #if MICROPY_ENABLE_GC
     gc_init(heap, heap + sizeof(heap));
     #endif
@@ -127,11 +125,6 @@ int main(int argc, char **argv) {
         }
     }
     #else
-	gpio_high(GPIOB, 6);
-	gpio_init(GPIOB, 9, GPIO_MODE_OUT, GPIO_PULL_NONE, 0);
-    gpio_low(GPIOB, 9);
-	do_str("print('hello world!', list(x+1 for x in range(10)), end='eol\\n')", MP_PARSE_SINGLE_INPUT);
-	do_str("for i in range(10):\r\n  print(i)", MP_PARSE_FILE_INPUT);
     pyexec_friendly_repl();
     #endif
     //do_str("print('hello world!', list(x+1 for x in range(10)), end='eol\\n')", MP_PARSE_SINGLE_INPUT);
@@ -142,7 +135,7 @@ int main(int argc, char **argv) {
 
 	
     mp_deinit();
-    return 0;
+    return 0; 
 }
 
 void gc_collect(void) {
@@ -206,20 +199,50 @@ void Reset_Handler(void) {
     _start();
 }
 
-void Default_Handler(void) {
+void Default_Handler_NMI(void) {
     for (;;) {
-	printf("calling Default_Handler\n");
+	//printf("calling Default_Handler\n");
     }
 }
+void Default_Handler_HardFault(void) {
+    for (;;) {
+	//printf("calling Default_Handler\n");
+    }
+}
+
+void Default_Handler_MemManage(void) {
+    for (;;) {
+	//printf("calling Default_Handler\n");
+    }
+}
+
+void Default_Handler_BusFault(void) {
+    for (;;) {
+	//printf("calling Default_Handler\n");
+    }
+}
+
+void Default_Handler_UsageFault(void) {
+    for (;;) {
+	//printf("calling Default_Handler\n");
+    }
+}
+
+void Default_Handler(void) {
+    for (;;) {
+	//printf("calling Default_Handler\n");
+    }
+}
+
 
 const uint32_t isr_vector[] __attribute__((section(".isr_vector"))) = {
     (uint32_t)&_estack,
     (uint32_t)&Reset_Handler,
-    (uint32_t)&Default_Handler, // NMI_Handler
-    (uint32_t)&Default_Handler, // HardFault_Handler
-    (uint32_t)&Default_Handler, // MemManage_Handler
-    (uint32_t)&Default_Handler, // BusFault_Handler
-    (uint32_t)&Default_Handler, // UsageFault_Handler
+    (uint32_t)&Default_Handler_NMI, // NMI_Handler
+    (uint32_t)&Default_Handler_HardFault, // HardFault_Handler
+    (uint32_t)&Default_Handler_MemManage, // MemManage_Handler
+    (uint32_t)&Default_Handler_BusFault, // BusFault_Handler
+    (uint32_t)&Default_Handler_UsageFault, // UsageFault_Handler
     0,
     0,
     0,
@@ -235,7 +258,7 @@ void _start(void) {
     // when we get here: stack is initialised, bss is clear, data is copied
 
     // SCB->CCR: enable 8-byte stack alignment for IRQ handlers, in accord with EABI
-    *((volatile uint32_t*)0xe000ed14) |= 1 << 9;
+    //*((volatile uint32_t*)0xe000ed14) |= 1 << 9;
 
     // initialise the cpu and peripherals
     #if MICROPY_MIN_USE_STM32_MCU
@@ -256,41 +279,49 @@ void _start(void) {
 #if MICROPY_MIN_USE_STM32_MCU
 void MYRCC_DeInit(void)
 { 
-  RCC->APB1RSTR = 0x00000000;
-RCC->APB2RSTR = 0x00000000; //问题3：这两句写1跟写0有什么区别？写0无作用，写1复位外设。我们用IO口时不是应该复位端口吗？怎么还是置0？
- 
-  RCC->AHBENR = 0x00000014; 
-  RCC->APB2ENR = 0x00000000;   
-  RCC->APB1ENR = 0x00000000;   
-//RCC->CR |= 0x00000001;    //问题4：这句可以注释掉吧？我是这样想的：STM32上电后内部时钟工作，开始执行第一条代码，在外部时钟未工作之前都是内部时钟在起作用，等PLL作为系统时钟设置成功后，也就是“void Stm32_Clock_Init(u8 PLL)；”函数里的这个循环
-RCC->CFGR &= 0xF8FF0000;  
- 
-RCC->CR &= 0xFEF6FFFF;   
-RCC->CR &= 0xFFFBFFFF;    
-RCC->CFGR &= 0xFF80FFFF; 
-RCC->CIR = 0x00000000;   
-
+  /* Reset the RCC clock configuration to the default reset state(for debug purpose) */
+  /* Set HSION bit */
+  RCC->CR |= (uint32_t)0x00000001;
+  /* Reset SW, HPRE, PPRE1, PPRE2, ADCPRE and MCO bits */
+  RCC->CFGR &= (uint32_t)0xF8FF0000;
+  /* Reset HSEON, CSSON and PLLON bits */
+  RCC->CR &= (uint32_t)0xFEF6FFFF;
+  /* Reset HSEBYP bit */
+  RCC->CR &= (uint32_t)0xFFFBFFFF;
+  /* Reset PLLSRC, PLLXTPRE, PLLMUL and USBPRE/OTGFSPRE bits */
+  RCC->CFGR &= (uint32_t)0xFF80FFFF;
+  /* Disable all interrupts and clear pending bits  */
+  RCC->CIR = 0x009F0000;
+  
 } 
 void Stm32_Clock_Init(uint32_t PLL)
 {
-unsigned char temp=0;   
-MYRCC_DeInit();
-RCC->CR|=0x00010000;  
-while(!(RCC->CR>>17));
-RCC->CFGR=0X00000400; 
-PLL-=2;
-RCC->CFGR|=PLL<<18;  
-RCC->CFGR|=1<<16;
-FLASH->ACR|=0x32; 
+	unsigned char temp=0;    
+    
+	MYRCC_DeInit();
+	
+	RCC->CR|=0x00010000;  //设置外部高速晶振(HSE)  HSE晶振打开(ON)
+	while(!(RCC->CR>>17));
 
-RCC->CR|=0x01000000;
-while(!(RCC->CR>>25));
-RCC->CFGR|=0x00000002;
-while(temp!=0x02)    
-{   
-temp=RCC->CFGR>>2;
-temp&=0x03;
-}    
+	RCC->CFGR=0X00000400; //AHB时钟 = 系统时钟  APB2时钟 = HCLK   APB1时钟 = HCLK/2
+	
+	FLASH->ACR|=0x32; //设置FLASH存储器延时时钟周期数为 2延时周期,选择FLASH预取指缓存的模,预取指缓存使能
+
+	//设置PLL时钟源及倍频系数  
+	PLL-=2;
+	RCC->CFGR|=PLL<<18;  //12M*6 = 72M
+	RCC->CFGR|=1<<16;    //HSE时钟作为PLL输入时钟  = 12M
+
+    RCC->CR|=0x01000000; ////使能PLL
+	
+	while(!(RCC->CR>>25));//检查指定的RCC标志位(PLL准备好标志)设置与否
+	
+	RCC->CFGR|=0x00000002;//设置系统时钟(SYSCLK)
+	while(temp!=0x02)    //检查是否PLL作为系统时钟
+	{   
+		temp=RCC->CFGR>>2;
+		temp&=0x03;
+	}    
 }   
 
 void stm32_init(void) {
@@ -328,8 +359,6 @@ void stm32_init(void) {
 	
     USART1->BRR = (468 << 4) | 12; // 16MHz/(16*104.1875) = 9598 baud
     USART1->CR1 = 0x0000200c; // USART enable, tx enable, rx enable
-    gpio_init(GPIOB, 7, GPIO_MODE_OUT, GPIO_PULL_NONE, 0);
-    gpio_low(GPIOB, 7);
 }
 
 #endif

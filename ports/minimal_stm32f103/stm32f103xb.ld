@@ -6,8 +6,7 @@
 MEMORY
 {
     FLASH (rx)      : ORIGIN = 0x08000000, LENGTH = 128K /* entire flash, 128K */
-    CCMRAM (xrw)    : ORIGIN = 0x10000000, LENGTH = 10K /* 10 KiB */
-    RAM (xrw)       : ORIGIN = 0x20000000, LENGTH = 64K /* 20 KiB */
+    RAM (xrw)       : ORIGIN = 0x20000000, LENGTH = 20K /* 20 KiB */
 }
 
 /* top end of the stack */

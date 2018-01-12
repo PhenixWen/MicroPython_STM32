@@ -80,7 +80,7 @@ typedef long mp_off_t;
 #include <alloca.h>
 
 #define MICROPY_HW_BOARD_NAME "minimal"
-#define MICROPY_HW_MCU_NAME "unknown-cpu"
+#define MICROPY_HW_MCU_NAME "STM32F103C8T6"
 
 #ifdef __linux__
 #error
